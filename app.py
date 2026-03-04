@@ -14,7 +14,7 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # 建议在 Render 的 Environment Variables 中设置 DEEPSEEK_API_KEY
 # 如果没设置，则回退到你提供的这个 Key（注意：公开代码中泄露 Key 有风险）
-API_KEY = os.environ.get("DEEPSEEK_API_KEY", "sk-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")
+API_KEY = os.environ.get("DEEPSEEK_API_KEY", "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")
 
 client = OpenAI(
     api_key=API_KEY,
