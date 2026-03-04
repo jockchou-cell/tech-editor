@@ -8,8 +8,10 @@ from openai import OpenAI
 app = Flask(__name__)
 CORS(app)
 
+import os
+
 client = OpenAI(
-    api_key="sk-8cede608eeb14649831bbd34214b8f1f",
+    api_key=os.getenv("OPENAI_API_KEY"),
     base_url="https://api.deepseek.com"
 )
 
