@@ -1,36 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>科技主编爆款生成器</title>
-<style>
-body { background:black; color:white; font-family:Arial; padding:40px; }
-textarea { width:100%; height:200px; }
-button { padding:10px 20px; margin-top:10px; }
-pre { white-space:pre-wrap; margin-top:20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>科技主编爆款生成器</title>
+    <style>
+        body { background:#1a1a1a; color:#eee; font-family: 'Segoe UI', Arial, sans-serif; padding:40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+        h1 { border-left: 5px solid #007bff; padding-left: 15px; }
+        textarea { 
+            width:100%; height:200px; background: #2d2d2d; color: white; border: 1px solid #444; 
+            padding: 15px; border-radius: 8px; box-sizing: border-box; font-size: 16px;
+        }
+        button { 
+            padding:12px 24px; margin-top:15px; cursor: pointer; background: #007bff; color: white; 
+            border: none; border-radius: 5px; font-weight: bold; transition: 0.3s;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        #output { 
+            white-space:pre-wrap; margin-top:30px; padding: 20px; background: #2d2d2d; 
+            border-radius: 8px; border: 1px dashed #666; min-height: 100px;
+        }
+        .loading { color: #ffc107; font-style: italic; }
+    </style>
 </head>
 <body>
 
 <h1>科技主编爆款生成器</h1>
+<p style="color: #888;">输入原始内容，一键生成硬核科技推文。</p>
 
-<textarea id="input" placeholder="粘贴新闻或文章"></textarea>
+<textarea id="input" placeholder="请在此粘贴新闻原文或文章素材..."></textarea>
 <br>
-<button onclick="generate()">生成文章</button>
+<button id="genBtn" onclick="generate()">生成文章</button>
 
-<pre id="output"></pre>
+<div id="output">等待生成结果...</div>
 
 <script>
 async function generate() {
-  const content = document.getElementById("input").value;
-  const response = await fetch("http://127.0.0.1:5000/generate", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({content})
-  });
+    const input = document.getElementById("input");
+    const output = document.getElementById("output");
+    const btn = document.getElementById("genBtn");
 
-  const data = await response.json();
-  document.getElementById("output").innerText = data.result;
+    if (!input.value.trim()) {
+        alert("请先输入内容！");
+        return;
+    }
+
+    // 状态切换
+    btn.disabled = true;
+    btn.innerText = "生成中，主编正在构思...";
+    output.innerHTML = '<span class="loading">正在调用 DeepSeek AI 引擎，请稍候...</span>';
+
+    try {
+        const response = await fetch("https://tech-editor.onrender.com/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ content: input.value })
+        });
+
+        if (!response.ok) {
+            throw new Error(`服务器响应错误: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.error) {
+            output.innerText = "后端报错: " + data.error;
+        } else {
+            output.innerText = data.result;
+        }
+
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        output.innerHTML = `<span style="color: #ff4444;">生成失败: ${error.message}<br>请检查后端是否在线或网络连接。</span>`;
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "生成文章";
+    }
 }
 </script>
 
